@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lucky-spin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lucky-spin
+  template:
+    metadata:
+      labels:
+        app: lucky-spin
+    spec:
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: laravel-pvc
+      containers:
+        # Laravel (PHP 8.4 + FPM)
+        - name: lucky-spin-app
+          image: laravel-app:latest
+          envFrom:
+            - secretRef:
+                name: lucky-spin-pvc
+          ports:
+            - containerPort: 9000
+
+        # NGINX (Uses ConfigMap)
+        - name: nginx
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+              name: nginx-config
+
+        # PostgreSQL
+        - name: postgresql
+          image: postgres:16
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: laravel-env
+                  key: DB_DATABASE
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: laravel-env
+                  key: DB_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: laravel-env
+                  key: DB_PASSWORD
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
