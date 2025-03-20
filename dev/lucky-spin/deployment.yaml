@@ -22,7 +22,7 @@ spec:
       containers:
         # Laravel (PHP 8.4 + FPM)
         - name: lucky-spin-app
-          image: laravel-app:latest
+          image: k8s-lucky-spin:latest
           envFrom:
             - secretRef:
                 name: lucky-spin-pvc
