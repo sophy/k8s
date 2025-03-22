@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: laravel-app
-          image: your-laravel-image:latest  # Replace with your actual Laravel image
+          image: laravel-k8s-project-app:latest  # Replace with your actual Laravel image
           ports:
             - containerPort: 9000  # Laravel runs on PHP-FPM (9000)
           envFrom:

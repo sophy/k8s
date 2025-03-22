@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: laravel-k8s-app
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/sophy/k8s
+    targetRevision: HEAD
+    path: dev/lara-k8s
+
+  destination: 
+    server: https://kubernetes.default.svc
+    namespace: argocd-laravel-k8s
+
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+
+    automated:
+      selfHeal: true
+      prune: true
