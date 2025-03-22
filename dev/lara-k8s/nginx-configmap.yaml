@@ -4,26 +4,33 @@ metadata:
   name: nginx-k8s-config
 data:
   nginx.conf: |
-    server {
-        listen 80;
-        server_name localhost;
+    events {}
 
-        root /var/www/html/public;
-        index index.php index.html index.htm;
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;
 
-        location / {
-            try_files $uri $uri/ /index.php?$query_string;
-        }
+        server {
+            listen 80;
+            server_name localhost;
 
-        location ~ \.php$ {
-            try_files $uri =404;
-            fastcgi_pass laravel-app:9000;  # Laravel PHP-FPM service
-            fastcgi_index index.php;
-            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-            include fastcgi_params;
-        }
+            root /var/www/html/public;
+            index index.php index.html index.htm;
 
-        location ~ /\.ht {
-            deny all;
+            location / {
+                try_files $uri $uri/ /index.php?$query_string;
+            }
+
+            location ~ \.php$ {
+                try_files $uri =404;
+                fastcgi_pass laravel-app:9000;  # Laravel PHP-FPM service
+                fastcgi_index index.php;
+                fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                include fastcgi_params;
+            }
+
+            location ~ /\.ht {
+                deny all;
+            }
         }
     }
