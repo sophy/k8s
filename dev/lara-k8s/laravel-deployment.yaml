@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: laravel-k8s
+  labels:
+    app: laravel-k8s
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: laravel-k8s
+  template:
+    metadata:
+      labels:
+        app: laravel-k8s
+    spec:
+      containers:
+        - name: laravel-app
+          image: your-laravel-image:latest  # Replace with your actual Laravel image
+          ports:
+            - containerPort: 9000  # Laravel runs on PHP-FPM (9000)
+          envFrom:
+            - configMapRef:
+                name: laravel-k8s-config
+            - secretRef:
+                name: laravel-k8s-secrets
+          volumeMounts:
+            - name: storage
+              mountPath: /var/www/html/storage
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: laravel-k8s-storage-pvc
