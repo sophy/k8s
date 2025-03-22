@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd-todo-app
+
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: todo-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sophy/k8s
+    targetRevision: HEAD
+    path: dev/todo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd-todo-app
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: argocd-todo-app
+  name: pod-exec-access
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "exec"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-exec-access-binding
+  namespace: argocd-todo-app
+subjects:
+  - kind: ServiceAccount
+    name: default  # You can specify a different service account if needed
+    namespace: argocd-todo-app
+roleRef:
+  kind: Role
+  name: pod-exec-access
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: todo
+  template:
+    metadata:
+      labels:
+        app: todo
+    spec:
+      initContainers:
+        - name: init-storage
+          image: psophy/php-fpm-example:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p /var/www/storage/framework/cache
+              mkdir -p /var/www/storage/framework/views
+              mkdir -p /var/www/storage/framework/sessions
+              chmod -R 777 /var/www/storage
+              chmod -R 777 /var/www/database/database.sqlite
+          volumeMounts:
+            - name: storage-volume
+              mountPath: /var/www/storage
+      containers:
+        - name: fpm
+          image: psophy/php-fpm-example:latest
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: storage-volume
+              mountPath: /var/www/storage
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    php artisan config:clear
+                    php artisan cache:clear
+                    php artisan view:clear
+                    php artisan route:clear
+                    php artisan storage:link || echo "Storage link already exists"
+                    chmod -R 777 /var/www/database/database.sqlite
+        - name: nginx
+          image: psophy/nginx-php-fpm-example:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/
+            - name: storage-volume
+              mountPath: /var/www/storage
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: todo-storage-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: todo-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
