@@ -72,7 +72,7 @@ metadata:
 data:
   default.conf: |-
     server {
-        listen       80;
+        listen       8088;
         server_name  _;
 
         root /srv/www/public;
@@ -92,6 +92,17 @@ data:
             deny all;
         }
     }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-service
+spec:
+  ports:
+    - port: 8088
+      targetPort: 8088
+  selector:
+    app: todo
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
