@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
         - name: init-storage
-          image: psophy/php-fpm-example:latest
+          image: php-fpm-todo:latest
           command:
             - /bin/sh
             - -c
@@ -29,7 +29,7 @@ spec:
               mountPath: /var/www/storage
       containers:
         - name: fpm
-          image: psophy/php-fpm-example:latest
+          image: php-fpm-todo:latest
           ports:
             - containerPort: 9000
           volumeMounts:
@@ -49,7 +49,7 @@ spec:
                     php artisan storage:link || echo "Storage link already exists"
                     chmod -R 777 /var/www/database/database.sqlite
         - name: nginx
-          image: psophy/nginx-php-fpm-example:latest
+          image: nginx-php-fpm-todo:latest
           ports:
             - containerPort: 80
           volumeMounts:
