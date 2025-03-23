@@ -49,7 +49,7 @@ spec:
                     php artisan storage:link || echo "Storage link already exists"
                     chmod -R 777 /var/www/database/database.sqlite
         - name: nginx
-          image: nginx-php-fpm-todo:latest
+          image: ghcr.io/sophy/nginx-php-fpm-todo:latest
           ports:
             - containerPort: 80
           volumeMounts:
