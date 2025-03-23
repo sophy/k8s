@@ -14,7 +14,7 @@ spec:
     spec:
       initContainers:
         - name: init-storage
-          image: php-fpm-todo:latest
+          image: ghcr.io/sophy/php-fpm-todo:latest
           command:
             - /bin/sh
             - -c
@@ -29,7 +29,7 @@ spec:
               mountPath: /var/www/storage
       containers:
         - name: fpm
-          image: php-fpm-todo:latest
+          image: ghcr.io/sophy/php-fpm-todo:latest
           ports:
             - containerPort: 9000
           volumeMounts:
